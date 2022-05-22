@@ -4,7 +4,7 @@ export const Navbar = () => {
   return (
     <AppBar position="sticky">
       <Toolbar>
-        <Typography variant="h6">Estadistica</Typography>
+        <Typography variant="h6">Estadistica II</Typography>
       </Toolbar>
     </AppBar>
   );

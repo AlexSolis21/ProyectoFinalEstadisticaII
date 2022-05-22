@@ -19,17 +19,20 @@ import * as Yup from "yup";
 import { Container } from "@mui/system";
 import { useState } from "react";
 import oneTail from "././data/oneTail.json";
+import twoTail from "././data/twoTail.json";
+import { BellCurve } from "./components/BellCurve";
 
 export const HomePage = () => {
-  //console.log(oneTail);
   const validationSchema = Yup.object().shape({
+    ho: Yup.string().required("Requerido"),
+    hi: Yup.string().required("Requerido"),
     nameColumn_0: Yup.string().required("Requerido"),
     nameColumn_1: Yup.string().required("Requerido"),
     nameColumn_2: Yup.string().required("Requerido"),
     rows: Yup.array().of(
       Yup.object().shape({
-        row_1: Yup.number().required("First name is required"),
-        row_2: Yup.number().required("Last name is required"),
+        row_1: Yup.number().required("Requerido"),
+        row_2: Yup.number().required("Requerido"),
       })
     ),
     tails: Yup.string().required("Requerido"),
@@ -45,8 +48,22 @@ export const HomePage = () => {
     <Layout>
       <Container component="main" maxWidth="md">
         <Card style={{ marginTop: "35px", padding: "25px" }}>
+          <Typography variant="h6" gutterBottom align="center">
+            POYECTO FINAL
+          </Typography>
+
+          <Typography variant="h5" gutterBottom align="center">
+            Yony Alexander Poncio Solis - 1490-18-15741
+          </Typography>
+          <Typography variant="h6" gutterBottom align="center">
+            INGA: Maria Del Milagro Diaz Rodriguez
+          </Typography>
+        </Card>
+        <Card style={{ marginTop: "35px", padding: "25px" }}>
           <Formik
             initialValues={{
+              ho: "",
+              hi: "",
               nameColumn_0: "",
               nameColumn_1: "",
               nameColumn_2: "",
@@ -63,7 +80,12 @@ export const HomePage = () => {
             validationSchema={validationSchema}
             onSubmit={(values) => {
               console.log(values);
+
+              //*********************************************************
+
               setIsVisible(true);
+
+              //*********************************************************
 
               const tableValues = values.rows.map((value, index) => {
                 return {
@@ -85,6 +107,8 @@ export const HomePage = () => {
               setTableTitles(titles);
               setTableData(tableValues);
 
+              //*********************************************************
+
               function sumArray() {
                 let sum1 = 0;
                 let sum2 = 0;
@@ -103,10 +127,124 @@ export const HomePage = () => {
               const res = sumArray();
 
               setResults(res);
+
+              //*********************************************************
+              const n = values.rows.length;
+              const gdl = n - 1;
+              const d = res.suma1 / n;
+
+              const sd = Math.sqrt(
+                (res.suma2 - Math.pow(res.suma1, 2) / n) / (n - 1)
+              );
+
+              const tt = Math.round((d / (sd / Math.sqrt(n))) * 100) / 100;
+
+              setResults((results: any) => ({
+                ...results,
+                tt,
+              }));
+
+              if (values.tails === "1") {
+                const findSign: any = oneTail.find(
+                  (val) => val.value === gdl.toString()
+                );
+                const t = findSign[values.levelSignificance];
+
+                setResults((results: any) => ({
+                  ...results,
+                  t,
+                }));
+              } else {
+                const findSign: any = twoTail.find(
+                  (val) => val.value === gdl.toString()
+                );
+                const t = findSign[values.levelSignificance];
+
+                setResults((results: any) => ({
+                  ...results,
+                  t,
+                }));
+              }
             }}
           >
             {({ values, touched, errors, handleChange, handleBlur }) => (
               <Form noValidate autoComplete="off">
+                <Typography variant="h4" gutterBottom align="center">
+                  Pruebas de hipotesis para medias: muestras dependientes
+                </Typography>
+                <Divider style={{ marginTop: 20, marginBottom: 20 }} />
+
+                <Typography variant="h5" gutterBottom>
+                  Hipotesis
+                </Typography>
+                <Divider style={{ marginTop: 20, marginBottom: 20 }} />
+
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="start"
+                  spacing={4}
+                  style={{ margin: "5px" }}
+                >
+                  <Typography variant="body1" gutterBottom>
+                    Ho: M1 - M2
+                  </Typography>
+
+                  <TextField
+                    margin="normal"
+                    select
+                    label=""
+                    name="ho"
+                    value={values.ho}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.ho && touched.ho)}
+                    helperText={errors.ho && touched.ho && errors.ho}
+                  >
+                    <MenuItem value="<">{"<"}</MenuItem>
+                    <MenuItem value="<=">{"<="}</MenuItem>
+                    <MenuItem value=">">{">"}</MenuItem>
+                    <MenuItem value=">=">{">="}</MenuItem>
+                    <MenuItem value="=">{"="}</MenuItem>
+                  </TextField>
+                  <Typography variant="body1" gutterBottom>
+                    0
+                  </Typography>
+                </Stack>
+
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="start"
+                  spacing={4}
+                  style={{ margin: "5px" }}
+                >
+                  <Typography variant="body1" gutterBottom>
+                    Hi: M1 - M2
+                  </Typography>
+
+                  <TextField
+                    margin="normal"
+                    select
+                    label=""
+                    name="hi"
+                    value={values.hi}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.hi && touched.hi)}
+                    helperText={errors.hi && touched.hi && errors.hi}
+                  >
+                    <MenuItem value="<">{"<"}</MenuItem>
+                    <MenuItem value="<=">{"<="}</MenuItem>
+                    <MenuItem value=">">{">"}</MenuItem>
+                    <MenuItem value=">=">{">="}</MenuItem>
+                    <MenuItem value="=">{"="}</MenuItem>
+                  </TextField>
+                  <Typography variant="body1" gutterBottom>
+                    0
+                  </Typography>
+                </Stack>
+
                 <Typography variant="h5" gutterBottom>
                   Encabezados de la tabla
                 </Typography>
@@ -115,11 +253,12 @@ export const HomePage = () => {
                 <TextField
                   margin="normal"
                   fullWidth
-                  label="Correo"
+                  label="Columna 1"
                   name="nameColumn_0"
                   value={values.nameColumn_0}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={Boolean(errors.nameColumn_0 && touched.nameColumn_0)}
                   helperText={
                     errors.nameColumn_0 &&
                     touched.nameColumn_0 &&
@@ -130,11 +269,12 @@ export const HomePage = () => {
                 <TextField
                   margin="normal"
                   fullWidth
-                  label="Correo"
+                  label="Columna 2"
                   name="nameColumn_1"
                   value={values.nameColumn_1}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={Boolean(errors.nameColumn_1 && touched.nameColumn_1)}
                   helperText={
                     errors.nameColumn_1 &&
                     touched.nameColumn_1 &&
@@ -145,11 +285,12 @@ export const HomePage = () => {
                 <TextField
                   margin="normal"
                   fullWidth
-                  label="Correo"
+                  label="Columna 3"
                   name="nameColumn_2"
                   value={values.nameColumn_2}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={Boolean(errors.nameColumn_2 && touched.nameColumn_2)}
                   helperText={
                     errors.nameColumn_2 &&
                     touched.nameColumn_2 &&
@@ -171,6 +312,7 @@ export const HomePage = () => {
                   value={values.tails}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={Boolean(errors.tails && touched.tails)}
                   helperText={errors.tails && touched.tails && errors.tails}
                 >
                   <MenuItem value="1">Una Cola</MenuItem>
@@ -187,19 +329,24 @@ export const HomePage = () => {
                     value={values.levelSignificance}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={Boolean(
+                      errors.levelSignificance && touched.levelSignificance
+                    )}
                     helperText={
                       errors.levelSignificance &&
                       touched.levelSignificance &&
                       errors.levelSignificance
                     }
                   >
-                    <MenuItem value="0.05">0.05</MenuItem>
+                    <MenuItem value="0.250">0.250</MenuItem>
+                    <MenuItem value="0.125">0.125</MenuItem>
+                    <MenuItem value="0.100">0.100</MenuItem>
+                    <MenuItem value="0.050">0.050</MenuItem>
                     <MenuItem value="0.025">0.025</MenuItem>
-                    <MenuItem value="0.01">0.01</MenuItem>
+                    <MenuItem value="0.013">0.013</MenuItem>
+                    <MenuItem value="0.010">0.010</MenuItem>
                     <MenuItem value="0.005">0.005</MenuItem>
-                    <MenuItem value="0.0025">0.0025</MenuItem>
-                    <MenuItem value="0.001">0.001</MenuItem>
-                    <MenuItem value="0.0005">0.0005</MenuItem>
+                    <MenuItem value="0.003">0.003</MenuItem>
                   </TextField>
                 ) : (
                   <TextField
@@ -211,19 +358,24 @@ export const HomePage = () => {
                     value={values.levelSignificance}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={Boolean(
+                      errors.levelSignificance && touched.levelSignificance
+                    )}
                     helperText={
                       errors.levelSignificance &&
                       touched.levelSignificance &&
                       errors.levelSignificance
                     }
                   >
-                    <MenuItem value="0.05">FERR</MenuItem>
+                    <MenuItem value="0.500">0.500</MenuItem>
+                    <MenuItem value="0.250">0.250</MenuItem>
+                    <MenuItem value="0.200">0.200</MenuItem>
+                    <MenuItem value="0.100">0.100</MenuItem>
+                    <MenuItem value="0.050">0.050</MenuItem>
                     <MenuItem value="0.025">0.025</MenuItem>
-                    <MenuItem value="0.01">0.01</MenuItem>
+                    <MenuItem value="0.020">0.020</MenuItem>
+                    <MenuItem value="0.010">0.010</MenuItem>
                     <MenuItem value="0.005">0.005</MenuItem>
-                    <MenuItem value="0.0025">0.0025</MenuItem>
-                    <MenuItem value="0.001">0.001</MenuItem>
-                    <MenuItem value="0.0005">0.0005</MenuItem>
                   </TextField>
                 )}
 
@@ -255,7 +407,7 @@ export const HomePage = () => {
                           >
                             <TextField
                               fullWidth
-                              label="First name"
+                              label="Valor 1"
                               name={row_1}
                               value={p.row_1}
                               type="number"
@@ -268,7 +420,7 @@ export const HomePage = () => {
                             />
                             <TextField
                               fullWidth
-                              label="Last name"
+                              label="Valor 2"
                               name={row_2}
                               value={p.row_2}
                               type="number"
@@ -299,7 +451,7 @@ export const HomePage = () => {
                           push({ id: Math.random(), row_1: "", row_2: "" })
                         }
                       >
-                        Add
+                        Agregar
                       </Button>
                     </div>
                   )}
@@ -311,7 +463,7 @@ export const HomePage = () => {
                   variant="contained"
                   // disabled={!isValid || values.people.length === 0}
                 >
-                  submit
+                  Calcular
                 </Button>
                 <Divider style={{ marginTop: 20, marginBottom: 20 }} />
               </Form>
@@ -353,12 +505,32 @@ export const HomePage = () => {
               </Table>
             </TableContainer>
 
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="subtitle1" gutterBottom>
               {`Suma de diferencias: ${results.suma1}`}
             </Typography>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="subtitle1" gutterBottom>
               {`Suma de cuadrados: ${results.suma2}`}
             </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              {`Grados de libertad: ${tableData.length - 1}`}
+            </Typography>
+
+            <Typography variant="subtitle1" gutterBottom>
+              {`t: ${results.t}`}
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              {`Respuesta t: ${results.tt}`}
+            </Typography>
+
+            <BellCurve resultado={results.tt} significancia={results.t} />
+
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => window.location.reload()}
+            >
+              Nuevo
+            </Button>
           </Card>
         )}
       </Container>
